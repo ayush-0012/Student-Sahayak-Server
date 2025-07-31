@@ -39,8 +39,8 @@ try {
 app.use("/api/user", userRouter);
 // app.use("/api/phone-number");
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("fjdkl");
+app.get("/ping", (req, res) => {
+  res.status(200).send("pong");
 });
 
 app.post("/create-order", async (req: Request, res: Response): Promise<any> => {
