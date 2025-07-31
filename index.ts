@@ -14,10 +14,16 @@ const app: Express = express();
 
 const PORT = process.env.PORT;
 
-console.log("fe url", process.env.FRONTEND_URL);
+console.log("prod fe url", process.env.PROD_FRONTEND_URL);
+console.log("dev fe url", process.env.DEV_FRONTEND_URL);
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.DEV_FRONTEND_URL,
+].filter(Boolean) as string[];
 
 const corsOptions = {
-  origin: process.env.FRONTEND_URL,
+  origin: allowedOrigins,
   method: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
@@ -40,6 +46,7 @@ app.use("/api/user", userRouter);
 // app.use("/api/phone-number");
 
 app.get("/ping", (req, res) => {
+  console.log("ping came");
   res.status(200).send("pong");
 });
 
