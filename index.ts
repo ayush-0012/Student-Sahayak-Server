@@ -5,6 +5,10 @@ dotenv.config();
 import razorpay from "./src/utils/razorpay";
 import { urlencoded } from "express";
 import cors from "cors";
+import { auth } from "./src/utils/auth";
+import { toNodeHandler } from "better-auth/node";
+import { userRouter } from "./src/routes/user.routes";
+import bodyParser from "body-parser";
 
 const app: Express = express();
 
@@ -17,9 +21,21 @@ const corsOptions = {
   credentials: true,
 };
 
+console.log(typeof toNodeHandler(auth)); // should log: 'function'
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(urlencoded({ extended: true }));
+
+// better auth route handler
+try {
+  app.all("/api/auth", toNodeHandler(auth));
+  console.log("Better-auth routes set up successfully");
+} catch (error) {
+  console.error("Error setting up better-auth routes:", error);
+}
+app.use("/api/user", userRouter);
+// app.use("/api/phone-number");
 
 app.get("/", (req: Request, res: Response) => {
   res.send("fjdkl");
