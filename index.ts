@@ -14,8 +14,10 @@ const app: Express = express();
 
 const PORT = process.env.PORT;
 
+console.log("fe url", process.env.FRONTEND_URL);
+
 const corsOptions = {
-  origin: "*",
+  origin: process.env.FRONTEND_URL,
   method: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
