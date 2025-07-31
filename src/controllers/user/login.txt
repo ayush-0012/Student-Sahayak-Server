@@ -1,0 +1,15 @@
+import { Request, Response } from "express";
+import nodemailer from "nodemailer";
+
+interface reqBody {
+  email: string;
+}
+
+export async function login(req: Request, res: Response) {
+  const { email }: reqBody = req.body;
+
+   
+
+  try {
+  } catch (error) {}
+}
