@@ -24,7 +24,7 @@ const allowedOrigins = [
 ].filter(Boolean) as string[];
 
 const corsOptions = {
-  origin: true,
+  origin: allowedOrigins,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
