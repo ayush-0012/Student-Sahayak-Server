@@ -20,6 +20,7 @@ console.log("dev fe url", process.env.DEV_FRONTEND_URL);
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   process.env.DEV_FRONTEND_URL,
+  "https://studentsahayak.in",
 ].filter(Boolean) as string[];
 
 const corsOptions = {
