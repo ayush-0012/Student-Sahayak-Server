@@ -24,7 +24,7 @@ console.log("dev fe url", process.env.DEV_FRONTEND_URL);
 // ].filter(Boolean) as string[];
 
 const corsOptions = {
-  origin: "https://www.studentsahayak.in/",
+  origin: "https://www.studentsahayak.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
