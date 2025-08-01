@@ -17,14 +17,14 @@ const PORT = process.env.PORT;
 console.log("prod fe url", process.env.PROD_FRONTEND_URL);
 console.log("dev fe url", process.env.DEV_FRONTEND_URL);
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  process.env.DEV_FRONTEND_URL,
-  "https://studentsahayak.in",
-].filter(Boolean) as string[];
+// const allowedOrigins = [
+//   process.env.FRONTEND_URL,
+//   process.env.DEV_FRONTEND_URL,
+//   "https://studentsahayak.in",
+// ].filter(Boolean) as string[];
 
 const corsOptions = {
-  origin: allowedOrigins,
+  origin: "https://www.studentsahayak.in/",
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
