@@ -11,7 +11,7 @@ import {
 
 export const users = pgTable("users", {
   userId: uuid().defaultRandom().primaryKey(),
-  // image: varchar(),
+  image: varchar(),
   fullName: varchar({ length: 225 }).notNull(),
   age: integer().notNull(),
   exam: varchar({ length: 225 }).notNull(),
@@ -46,11 +46,11 @@ export const usersRelations = relations(users, ({ many }) => ({
 }));
 
 export const session = pgTable("session", {
-  id: text("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   expiresAt: timestamp("expires_at").notNull(),
   token: text("token").notNull().unique(),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
   userId: uuid("user_id")

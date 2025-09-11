@@ -9,6 +9,7 @@ import { auth } from "./src/utils/auth";
 import { toNodeHandler } from "better-auth/node";
 import { userRouter } from "./src/routes/user.routes";
 import bodyParser from "body-parser";
+import { checkSignedIn } from "./src/middleware/signedIn";
 
 const app: Express = express();
 
@@ -51,37 +52,41 @@ app.get("/ping", (req, res) => {
   res.status(200).send("pong");
 });
 
-app.post("/create-order", async (req: Request, res: Response): Promise<any> => {
-  const { amount, currency, receipt } = req.body;
+app.post(
+  "/create-order",
+  checkSignedIn,
+  async (req: Request, res: Response): Promise<any> => {
+    const { amount, currency, receipt } = req.body;
 
-  console.log("create ordend endpoint hit");
+    console.log("create ordend endpoint hit");
 
-  try {
-    const options = {
-      amount: amount * 100, // amount will be calculated in paise
-      currency,
-      receipt,
-    };
+    try {
+      const options = {
+        amount: amount * 100, // amount will be calculated in paise
+        currency,
+        receipt,
+      };
 
-    const order = await razorpay.orders.create(options);
+      const order = await razorpay.orders.create(options);
 
-    console.log(order);
+      console.log(order);
 
-    return res.status(201).json({
-      order_id: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      receipt: order.receipt,
-      status: order.status,
-      notes: order.notes,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Failed to create order", error });
+      return res.status(201).json({
+        order_id: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        receipt: order.receipt,
+        status: order.status,
+        notes: order.notes,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: "Failed to create order", error });
+    }
   }
-});
+);
 
-app.post("/verify-payment", (req: Request, res: Response) => {
+app.post("/verify-payment", checkSignedIn, (req: Request, res: Response) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
     req.body;
 });

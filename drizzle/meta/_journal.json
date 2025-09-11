@@ -15,6 +15,34 @@
       "when": 1753857851236,
       "tag": "0001_worried_star_brand",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1755952205327,
+      "tag": "0002_opposite_nomad",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1756041191693,
+      "tag": "0003_condemned_kitty_pryde",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1756041212560,
+      "tag": "0004_married_iron_lad",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1756043416624,
+      "tag": "0005_slimy_titanium_man",
+      "breakpoints": true
     }
   ]
 }

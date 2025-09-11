@@ -1,0 +1,1 @@
+ALTER TABLE "session" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();
