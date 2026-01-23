@@ -1,15 +1,15 @@
-import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
+import express, { Express, Request, Response } from "express";
 dotenv.config();
 
-import razorpay from "./src/utils/razorpay";
-import { urlencoded } from "express";
-import cors from "cors";
-import { auth } from "./src/utils/auth";
 import { toNodeHandler } from "better-auth/node";
-import { userRouter } from "./src/routes/user.routes";
-import bodyParser from "body-parser";
+import cors from "cors";
+import { urlencoded } from "express";
 import { checkSignedIn } from "./src/middleware/signedIn";
+import { analyzeTestRouter } from "./src/routes/analyzeTest.routes";
+import { userRouter } from "./src/routes/user.routes";
+import { auth } from "./src/utils/auth";
+import razorpay from "./src/utils/razorpay";
 
 const app: Express = express();
 
@@ -45,7 +45,7 @@ try {
   console.error("Error setting up better-auth routes:", error);
 }
 app.use("/api/user", userRouter);
-// app.use("/api/phone-number");
+app.use("/api", analyzeTestRouter);
 
 app.get("/ping", (req, res) => {
   console.log("ping came");
