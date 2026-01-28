@@ -3,24 +3,26 @@ import OpenAI from "openai";
 
 interface AnswerObject {
   question: string;
-  phase: string;
+  block: string;
   answer: string;
+  points: number;
 }
 
 interface AnalyzeTestRequest {
   answers: AnswerObject[];
+  totalScore: number;
+  maxScore: number;
+  percentage: string;
+  status: string;
 }
 
-// Gemini removed — using GROQ/OpenAI-compatible client only
-
-// Initialize GROQ/OpenAI-compatible client (used for Groq's OpenAI-compatible API)
+// Initialize GROQ/OpenAI-compatible client
 const groqClient = new OpenAI({
   apiKey: process.env.GROQ_API_KEY,
   baseURL: process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1",
 });
 
-// Call GROQ via the OpenAI-compatible client. Uses `responses.create` as in
-// Groq docs. Set env `GROQ_API_KEY` and optionally `GROQ_MODEL`.
+// Call GROQ via the OpenAI-compatible client
 async function callGroq(prompt: string): Promise<string> {
   if (!process.env.GROQ_API_KEY) throw new Error("Groq not configured");
 
@@ -31,8 +33,6 @@ async function callGroq(prompt: string): Promise<string> {
     input: prompt,
   });
 
-  // Preferred: `output_text` (simple), otherwise attempt to extract common shapes
-  // `resp` can be large/structured — handle gracefully
   // @ts-ignore - runtime shape varies
   if (
     (resp as any).output_text &&
@@ -54,7 +54,6 @@ async function callGroq(prompt: string): Promise<string> {
     if (first?.text) return first.text;
   }
 
-  // Fallback: stringify the response
   try {
     return JSON.stringify(resp);
   } catch {
@@ -65,8 +64,11 @@ async function callGroq(prompt: string): Promise<string> {
 export const analyzeTest = async (req: Request, res: Response) => {
   try {
     console.log("📥 Received analyze-test request");
-    const { answers } = req.body as AnalyzeTestRequest;
+    const { answers, totalScore, maxScore, percentage, status } =
+      req.body as AnalyzeTestRequest;
     console.log(`📊 Number of answers received: ${answers?.length || 0}`);
+    console.log(`🎯 Score: ${totalScore}/${maxScore} (${percentage}%)`);
+    console.log(`📈 Status: ${status}`);
 
     // Validate request
     if (!answers || !Array.isArray(answers) || answers.length === 0) {
@@ -83,45 +85,87 @@ export const analyzeTest = async (req: Request, res: Response) => {
       });
     }
 
-    // Format the answers for the prompt
-    const formattedAnswers = answers
+    // Analyze answers by block
+    const blockAnalysis: {
+      [key: string]: { total: number; scored: number; questions: number };
+    } = {};
+
+    answers.forEach((qa) => {
+      if (!blockAnalysis[qa.block]) {
+        blockAnalysis[qa.block] = { total: 0, scored: 0, questions: 0 };
+      }
+      blockAnalysis[qa.block].scored += qa.points;
+      blockAnalysis[qa.block].total += 5; // Max points per question
+      blockAnalysis[qa.block].questions += 1;
+    });
+
+    // Find weakest areas (blocks with lowest percentage)
+    const weakAreas = Object.entries(blockAnalysis)
+      .map(([block, data]) => ({
+        block,
+        percentage: ((data.scored / data.total) * 100).toFixed(0),
+        scored: data.scored,
+        total: data.total,
+      }))
+      .sort((a, b) => parseFloat(a.percentage) - parseFloat(b.percentage))
+      .slice(0, 3);
+
+    // Format weak areas for prompt
+    const weakAreasText = weakAreas
       .map(
-        (qa, index) =>
-          `${index + 1}. Phase: ${qa.phase}\n   Q: ${qa.question}\n   A: ${qa.answer}`
+        (area) =>
+          `- ${area.block}: ${area.scored}/${area.total} (${area.percentage}%)`
       )
+      .join("\n");
+
+    // Format specific low-scoring answers
+    const criticalAnswers = answers
+      .filter((qa) => qa.points === 0)
+      .slice(0, 5)
+      .map((qa) => `• ${qa.question}\n  Answer: ${qa.answer}`)
       .join("\n\n");
 
-    // Create the prompt for Gemini
-    const prompt = `You are a brutally honest reality-check analyst for students preparing for competitive exams. Your job is to analyze their study habits and give them a wake-up call if needed.
+    // Create the prompt for AI
+    const prompt = `You are analyzing a student's preparation DNA test for competitive exams. They scored ${totalScore}/${maxScore} (${percentage}%), which categorizes them as "${status}".
 
-The student has answered 17 critical questions about their preparation across 4 phases:
-1. The Routine & Efficiency Trap
-2. The Physical & Mental Decay
-3. The Strategic Failure
-4. The Heavy Hits (Emotional Closer)
+SCORE BREAKDOWN BY BLOCK:
+${Object.entries(blockAnalysis)
+  .map(
+    ([block, data]) =>
+      `${block}: ${data.scored}/${data.total} (${((data.scored / data.total) * 100).toFixed(0)}%)`
+  )
+  .join("\n")}
 
-Here are the student's responses:
+WEAKEST AREAS:
+${weakAreasText}
 
-${formattedAnswers}
+${
+  criticalAnswers
+    ? `CRITICAL GAPS (0-point answers):
+${criticalAnswers}`
+    : ""
+}
 
-Based on these answers, provide a harsh, honest reality check in 3-4 paragraphs. Your response should:
+Based on this data, provide a brutally honest, personalized reality check in 3-4 paragraphs:
 
-1. **Identify the core problems**: Point out the specific areas where they're failing or lying to themselves
-2. **Connect the dots**: Show how their habits are interconnected and creating a vicious cycle
-3. **Reality check**: Be brutally honest about where they stand and what will happen if they don't change
-4. **Urgency**: Make them feel the weight of time slipping away and opportunities being lost
+1. **The Hard Truth**: Point out their specific weaknesses based on the blocks where they scored lowest. Be direct about what these gaps mean for their exam chances.
 
-Write in a direct, no-nonsense tone that cuts through self-deception. Use "you" to address them directly. Make it personal, uncomfortable, and impossible to ignore. The goal is to shake them out of complacency, not to comfort them.
+2. **The Hidden Pattern**: Connect the dots between their weak areas. Show how these deficiencies create a vicious cycle that's sabotaging their preparation.
+
+3. **The Reality of Time**: Make them understand the urgency. With their current score category of "${status}", what does their future look like if nothing changes?
+
+4. **The Wake-Up Call**: End with a stark comparison - where they are vs. where the top 1% operates. Make it impossible to ignore the gap.
+
+Write in a direct, no-nonsense Hindi-English mix tone that Indian students relate to. Use "you" to address them. Be brutally honest but not demotivating - the goal is to shock them into action, not crush their spirit.
 
 Do NOT:
-- Sugarcoat anything
-- Give generic motivational advice
-- Use phrases like "it's okay" or "you can do it"
-- List out actionable steps (save that for later)
+- Give generic advice
+- List solutions (that comes later)
+- Use motivational clichés
+- Sugarcoat the reality
 
-Focus on making them confront the truth about their current situation. Write 3-4 paragraphs only.`;
+Focus on making them FEEL the weight of their current situation through specific insights from their test responses. Keep it to 3-4 powerful paragraphs.`;
 
-    // Use GROQ/OpenAI-compatible client to generate content
     console.log("🤖 Calling GROQ API...");
     const message = await callGroq(prompt);
     console.log("✅ GROQ response received");
@@ -130,13 +174,26 @@ Focus on making them confront the truth about their current situation. Write 3-4
     console.log("─".repeat(50));
 
     // Return the response
-    return res.status(200).json({ message: message });
+    return res.status(200).json({
+      message: message,
+      score: {
+        total: totalScore,
+        max: maxScore,
+        percentage: percentage,
+        status: status,
+      },
+      blockAnalysis: Object.entries(blockAnalysis).map(([block, data]) => ({
+        block,
+        scored: data.scored,
+        total: data.total,
+        percentage: ((data.scored / data.total) * 100).toFixed(0),
+      })),
+    });
   } catch (error: any) {
     console.error("❌ Error analyzing test:", error);
     console.error("Error details:", error.message);
     const errMsg = error?.message || "Unknown error";
 
-    // Detect quota / rate-limit errors from Gemini and return a clear message
     if (
       errMsg.toLowerCase().includes("quota") ||
       errMsg.includes("Too Many Requests")
@@ -144,7 +201,7 @@ Focus on making them confront the truth about their current situation. Write 3-4
       return res.status(503).json({
         message:
           "AI service quota exceeded. Please try again in a few minutes.",
-        error: "Gemini quota exceeded",
+        error: "API quota exceeded",
         details: errMsg,
       });
     }
