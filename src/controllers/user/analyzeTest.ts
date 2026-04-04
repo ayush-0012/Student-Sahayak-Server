@@ -156,7 +156,7 @@ Based on this data, provide a brutally honest, personalized reality check in 3-4
 
 4. **The Wake-Up Call**: End with a stark comparison - where they are vs. where the top 1% operates. Make it impossible to ignore the gap.
 
-Write in a direct, no-nonsense Hindi-English mix tone that Indian students relate to. Use "you" to address them. Be brutally honest but not demotivating - the goal is to shock them into action, not crush their spirit.
+Write in a direct, no-nonsense, strictly English tone. Use Markdown formatting for emphasis (bold, lists). Use "you" to address them. Be brutally honest but not demotivating - the goal is to shock them into action, not crush their spirit.
 
 Do NOT:
 - Give generic advice
