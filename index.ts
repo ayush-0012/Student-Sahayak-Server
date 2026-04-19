@@ -47,11 +47,6 @@ try {
 app.use("/api/user", userRouter);
 app.use("/api", analyzeTestRouter);
 
-app.get("/ping", (req, res) => {
-  console.log("ping came");
-  res.status(200).send("pong");
-});
-
 app.post(
   "/create-order",
   checkSignedIn,
