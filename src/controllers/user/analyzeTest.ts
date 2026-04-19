@@ -126,6 +126,43 @@ export const analyzeTest = async (req: Request, res: Response) => {
       .join("\n\n");
 
     // Create the prompt for AI
+    const plansInfo = `
+OUR PLATFORM PLANS:
+
+1. NORMAL PLAN (₹250-1400 for 30-180 days):
+   - Full access to all features
+   - Academic Mentor, Accountability Mentor, Psychological Mentor
+   - Backlog Tracker, Revision Tracker, Syllabus Tracker
+   - Deep Profile Analysis, Badges, Leaderboard
+   - Best for: Comprehensive mentoring support
+
+2. TRACKER PLAN (₹30-1000 for 7-360 days):
+   - Focused tracking without mentoring
+   - Schedule System, Revision Tracker, Syllabus Tracker, Backlog Tracker
+   - Affordable option for self-motivated students
+   - Best for: Budget-conscious students wanting tracking
+
+3. CHALLENGE PLAN (₹500-2000 for 30-90 days):
+   - Gamified accountability system
+   - Daily targets with real rewards (₹500-2000)
+   - Penalty for missed days (-₹50/day)
+   - Failure limit: miss too many days = no reward
+   - Best for: High-motivation students who thrive under competition
+
+4. SSC REVISION PLAN (₹2500 for 30 days):
+   - 45 mins/day revision sessions (Mon-Sat)
+   - Live sessions with recordings
+   - SSC-specific content and practice
+   - Best for: SSC aspirants
+
+5. UPSC WEEKEND PLAN (₹7000-13500 for 3-6 months):
+   - Weekend-focused UPSC preparation
+   - Current affairs, Answer writing practice
+   - Optional weekday support
+   - Best for: Working professionals and UPSC aspirants
+
+Based on their score category of "${status}", recommend the most suitable plan(s).`;
+
     const prompt = `You are analyzing a student's preparation DNA test for competitive exams. They scored ${totalScore}/${maxScore} (${percentage}%), which categorizes them as "${status}".
 
 SCORE BREAKDOWN BY BLOCK:
@@ -146,15 +183,13 @@ ${criticalAnswers}`
     : ""
 }
 
-Based on this data, provide a brutally honest, personalized reality check in 3-4 paragraphs:
+${plansInfo}
+
+Based on this data, provide a brutally honest, personalized reality check in 2-3 paragraphs:
 
 1. **The Hard Truth**: Point out their specific weaknesses based on the blocks where they scored lowest. Be direct about what these gaps mean for their exam chances.
 
 2. **The Hidden Pattern**: Connect the dots between their weak areas. Show how these deficiencies create a vicious cycle that's sabotaging their preparation.
-
-3. **The Reality of Time**: Make them understand the urgency. With their current score category of "${status}", what does their future look like if nothing changes?
-
-4. **The Wake-Up Call**: End with a stark comparison - where they are vs. where the top 1% operates. Make it impossible to ignore the gap.
 
 Write in a direct, no-nonsense, strictly English tone. Use Markdown formatting for emphasis (bold, lists). Use "you" to address them. Be brutally honest but not demotivating - the goal is to shock them into action, not crush their spirit.
 
@@ -163,8 +198,9 @@ Do NOT:
 - List solutions (that comes later)
 - Use motivational clichés
 - Sugarcoat the reality
+- Include "Reality of Time" or "Wake-Up Call" sections
 
-Focus on making them FEEL the weight of their current situation through specific insights from their test responses. Keep it to 3-4 powerful paragraphs.`;
+Focus on making them FEEL the weight of their current situation through specific insights from their test responses. Keep it to 2-3 powerful paragraphs.`;
 
     console.log("🤖 Calling GROQ API...");
     const message = await callGroq(prompt);
