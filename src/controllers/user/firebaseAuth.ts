@@ -104,7 +104,10 @@ export async function firebaseLogin(req: Request, res: Response): Promise<any> {
     const user = await getUser(uid);
 
     if (!user) {
-      return res.status(404).json({ error: "User not found in database" });
+      return res.status(404).json({
+        error: "Please register your account first",
+        code: "USER_NOT_REGISTERED",
+      });
     }
 
     // Update last login
@@ -240,7 +243,10 @@ export async function getSession(req: Request, res: Response): Promise<any> {
     const user = await getUser(uid);
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({
+        error: "Please register your account first",
+        code: "USER_NOT_REGISTERED",
+      });
     }
 
     return res.status(200).json({
