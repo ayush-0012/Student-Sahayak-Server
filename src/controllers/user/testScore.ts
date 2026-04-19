@@ -28,13 +28,29 @@ function shouldResetDailyLimit(lastResetDate: any): boolean {
     lastResetDate instanceof Date
       ? lastResetDate
       : lastResetDate.toDate?.() || new Date(lastResetDate);
-  
+
   // Use UTC time to avoid timezone issues
   const today = new Date();
-  const todayUTC = new Date(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0, 0);
+  const todayUTC = new Date(
+    today.getUTCFullYear(),
+    today.getUTCMonth(),
+    today.getUTCDate(),
+    0,
+    0,
+    0,
+    0
+  );
 
   const lastResetDateUTC = new Date(lastReset);
-  const lastResetUTC = new Date(lastResetDateUTC.getUTCFullYear(), lastResetDateUTC.getUTCMonth(), lastResetDateUTC.getUTCDate(), 0, 0, 0, 0);
+  const lastResetUTC = new Date(
+    lastResetDateUTC.getUTCFullYear(),
+    lastResetDateUTC.getUTCMonth(),
+    lastResetDateUTC.getUTCDate(),
+    0,
+    0,
+    0,
+    0
+  );
 
   return lastResetUTC < todayUTC;
 }
@@ -168,7 +184,7 @@ export async function getTestAttemptsRemaining(
     // Get user profile from Firestore
     const usersRef = firestore.collection("users");
     const userDoc = await usersRef.doc(uid).get();
-    const userData = userDoc.data() || {};+
+    const userData = userDoc.data() || {};
 
     let dailyTestsUsed = userData.dailyTestsUsed || 0;
     let lastTestResetDate = userData.lastTestResetDate;
