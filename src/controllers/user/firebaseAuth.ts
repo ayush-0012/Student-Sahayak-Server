@@ -11,6 +11,7 @@ interface FirebaseRegisterBody {
   uid: string;
   fullName: string;
   email: string;
+  phoneNumber?: string;
   emailVerified?: boolean;
 }
 
@@ -26,7 +27,7 @@ export async function firebaseRegister(
   req: Request,
   res: Response
 ): Promise<any> {
-  const { uid, fullName, email }: FirebaseRegisterBody = req.body;
+  const { uid, fullName, email, phoneNumber }: FirebaseRegisterBody = req.body;
 
   try {
     // Verify Firebase token
@@ -55,6 +56,7 @@ export async function firebaseRegister(
     const userData: Partial<UserData> = {
       fullName,
       email,
+      phoneNumber: phoneNumber || undefined,
       emailVerified: !!decodedToken.email_verified,
     };
 
