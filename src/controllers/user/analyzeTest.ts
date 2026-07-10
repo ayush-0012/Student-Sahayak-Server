@@ -136,7 +136,7 @@ OUR PLATFORM PLANS:
    - Deep Profile Analysis, Badges, Leaderboard
    - Best for: Comprehensive mentoring support
 
-2. TRACKER PLAN (₹30-1000 for 7-360 days):
+2. TRACKER PLAN (₹99-1000 for 30-360 days):
    - Focused tracking without mentoring
    - Schedule System, Revision Tracker, Syllabus Tracker, Backlog Tracker
    - Affordable option for self-motivated students
